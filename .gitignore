@@ -1,0 +1,17 @@
+Temp/
+Library/
+Objt/
+obj/
+
+*.cache
+*.suo
+*.csproj
+*.unityproj
+*.sln
+*.user
+*.userprefs
+*.DS_store
+*.sublime-project
+*.sublime-workspace
+.tags
+.tags_sorted_by_file
