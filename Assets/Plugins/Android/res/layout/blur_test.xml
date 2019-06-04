@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:clipToPadding="false"
+    >
+
+    <net.gamya.android.utils.RealTimeBlurView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+        <RelativeLayout
+            android:id="@+id/popupLinearMainRL"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_centerHorizontal="true"
+            android:background="#00FF00"
+            android:layout_centerVertical="true">
+            <LinearLayout
+                android:id="@+id/upper"
+            android:layout_width="260dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginHorizontal="20dp"
+            >
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="40dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="22sp"
+                android:fontFamily="sans-serif"
+                android:textStyle="normal"
+                android:textColor="#2d3137"
+                android:text="Title text area"
+                />
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="20dp" />
+            <TextView
+                android:id="@+id/default_popup_textview_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-light"
+                android:textStyle="normal"
+                android:textColor="#3d434c"
+                android:lineSpacingExtra="5dp"
+                android:text="1-Contents text area.Contents text area.Contents text"
+                />
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="30dp" />
+
+
+        </LinearLayout>
+
+            <!--<LinearLayout-->
+                <!--android:layout_alignBottom="@id/upper"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content">-->
+
+
+
+            <!-- button area -->
+            <LinearLayout
+                android:id="@+id/popup_button_area_layout"
+                android:layout_below="@id/upper"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:orientation="vertical"
+                >
+
+
+                <!-- 2button , can't change id name : final keyword-->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal"
+                    android:clipToPadding="false"
+                    >
+
+                    <RelativeLayout
+                        android:id="@+id/popup_button_sub_button"
+                        android:layout_margin="2dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="#FF00FF"
+                        >
+
+                        <TextView
+                            android:layout_width="125dp"
+                            android:layout_height="54dp"
+                            android:textSize="16sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textStyle="normal"
+                            android:textColor="#ffffff"
+                            android:lineSpacingExtra="2sp"
+                            android:gravity="center"
+                            android:text="Sub button"
+                            />
+
+                    </RelativeLayout>
+
+
+                </LinearLayout>
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp" />
+            </LinearLayout>
+        </RelativeLayout>
+
+</RelativeLayout>
