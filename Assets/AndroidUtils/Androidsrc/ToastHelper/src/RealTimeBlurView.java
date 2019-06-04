@@ -248,7 +248,7 @@ public class RealTimeBlurView extends View {
                         if (decor.getBackground() != null) {
                             decor.getBackground().draw(mBlurringCanvas);
                         }
-                        // decor.draw(mBlurringCanvas);
+                        decor.draw(mBlurringCanvas);
                         // saveBitmap(mBitmapToBlur);      //  blank screen shot when UNITY
                         // Bitmap newBitmap = BitmapFactory.decodeResource(getContext().getResources(), getContext().getResources().getIdentifier("bg_sample", "drawable", getContext().getPackageName())); // Using drawable resource
                         // Bitmap newBitmap = takeScreenShot();     // Using Pixel Copy ( >= android 26 )
