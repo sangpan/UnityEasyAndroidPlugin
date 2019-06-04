@@ -6,9 +6,9 @@
     android:clipToPadding="false"
     >
 
-    <net.gamya.android.utils.RealTimeBlurView
+    <!-- <net.gamya.android.utils.RealTimeBlurView
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent" /> -->
 
         <RelativeLayout
             android:id="@+id/popupLinearMainRL"

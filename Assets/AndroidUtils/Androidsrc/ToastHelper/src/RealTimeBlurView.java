@@ -24,8 +24,16 @@ import android.view.ViewTreeObserver;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
+
+import javax.microedition.khronos.egl.EGL10;
+import javax.microedition.khronos.egl.EGLContext;
+import javax.microedition.khronos.opengles.GL10;
 
 
 // Source From https://github.com/mmin18/RealtimeBlurView 
@@ -248,11 +256,12 @@ public class RealTimeBlurView extends View {
                         if (decor.getBackground() != null) {
                             decor.getBackground().draw(mBlurringCanvas);
                         }
-                        decor.draw(mBlurringCanvas);
+                        // decor.draw(mBlurringCanvas);
                         // saveBitmap(mBitmapToBlur);      //  blank screen shot when UNITY
                         // Bitmap newBitmap = BitmapFactory.decodeResource(getContext().getResources(), getContext().getResources().getIdentifier("bg_sample", "drawable", getContext().getPackageName())); // Using drawable resource
-                        // Bitmap newBitmap = takeScreenShot();     // Using Pixel Copy ( >= android 26 )
-                        // mBlurringCanvas.drawBitmap(newBitmap,0,0, null);
+                        Bitmap newBitmap = takeScreenShot();     // Using Pixel Copy ( >= android 26 )
+                        mBlurringCanvas.drawBitmap(newBitmap,0,0, null);
+                        // mBlurringCanvas.drawBitmap(mBitmapToBlur,0,0, null);
                     } catch (StopException e) {
                     } finally {
                         mIsRendering = false;
@@ -369,7 +378,7 @@ public class RealTimeBlurView extends View {
         }
 
         //for Debug
-        public void saveBitmap(Bitmap bitmap) {
+        public static void saveBitmap(Bitmap bitmap) {
             Date now = new Date();
             android.text.format.DateFormat.format("yyyy-MM-dd_hh:mm:ss", now);
             try {
@@ -393,44 +402,75 @@ public class RealTimeBlurView extends View {
         public CountDownLatch captureLatch;
         public Bitmap takeScreenShot()
         {
-            Context ctx = getContext();
-            for (int i = 0; i < 4 && ctx != null && !(ctx instanceof Activity) && ctx instanceof ContextWrapper; i++) {
-                ctx = ((ContextWrapper) ctx).getBaseContext();
-            }
-            Activity activity = (Activity)ctx;
-
-            View view =
-                    //activity.getWindow().getDecorView();
-                    getActivityDecorView();
-            view.setDrawingCacheEnabled(true);
-            int width =
-            view.getWidth();
-//                    activity.getWindowManager().getDefaultDisplay().getWidth();
-            int height =
-//                    activity.getWindowManager().getDefaultDisplay().getHeight();
-            view.getHeight();
-            // Create a bitmap the size of the scene view.
-            final Bitmap bitmap = Bitmap.createBitmap(width, height,
-                    Bitmap.Config.ARGB_8888);
-            // Create a handler thread to offload the processing of the image.
-            final HandlerThread handlerThread = new HandlerThread("PixelCopier");
-            // Make the request to copy.
-            handlerThread.start();
-            captureLatch = new CountDownLatch(1);
-            PixelCopy.request(activity.getWindow() , bitmap, new PixelCopy.OnPixelCopyFinishedListener() {
-                @Override
-                public void onPixelCopyFinished(int copyResult) {
-                    captureLatch.countDown();
-                    handlerThread.quitSafely();
+            {
+                Context ctx = getContext();
+                for (int i = 0; i < 4 && ctx != null && !(ctx instanceof Activity) && ctx instanceof ContextWrapper; i++) {
+                    ctx = ((ContextWrapper) ctx).getBaseContext();
                 }
-            }, new Handler(handlerThread.getLooper()));
-
-
-            try {
-                captureLatch.await();    // wait AuthV4Network.ResponseProviderFriendsList
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                Activity activity = (Activity)ctx;
+    //
+                View view =
+                        //activity.getWindow().getDecorView();
+                        getActivityDecorView();
+    //            view.setDrawingCacheEnabled(true);
+                int width =
+                view.getWidth();
+    //                    activity.getWindowManager().getDefaultDisplay().getWidth();
+                int height =
+    //                    activity.getWindowManager().getDefaultDisplay().getHeight();
+                view.getHeight();
+    
+    
+                EGL10 egl = (EGL10) EGLContext.getEGL();
+                GL10 gl = (GL10) egl.eglGetCurrentContext().getGL();
+    
+                int size = width * height;
+                ByteBuffer buf = ByteBuffer.allocateDirect(size * 4);
+                buf.order(ByteOrder.nativeOrder());
+                gl.glReadPixels(0, 0, width, height, GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, buf);
+                int data[] = new int[size];
+                buf.asIntBuffer().get(data);
+                buf = null;
+                final Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
+                bitmap.setPixels(data, size-width, -width, 0, 0, width, height);
+                data = null;
+    
+                short sdata[] = new short[size];
+                ShortBuffer sbuf = ShortBuffer.wrap(sdata);
+                bitmap.copyPixelsToBuffer(sbuf);
+                for (int i = 0; i < size; ++i) {
+                    //BGR-565 to RGB-565
+                    short v = sdata[i];
+                    sdata[i] = (short) (((v&0x1f) << 11) | (v&0x7e0) | ((v&0xf800) >> 11));
+                }
+                sbuf.rewind();
+                bitmap.copyPixelsFromBuffer(sbuf);
+    
+                captureLatch = new CountDownLatch(1);
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            FileOutputStream fos = new FileOutputStream("/sdcard/screeshot.png");
+                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                            fos.flush();
+                            fos.close();
+                            captureLatch.countDown();
+    
+                        } catch (Exception e) {
+                            // handle
+                        }
+                    }
+                });
+    
+    
+                try {
+                    captureLatch.await();    // wait AuthV4Network.ResponseProviderFriendsList
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+    
+                return bitmap;
             }
-            return bitmap;
         }
     }

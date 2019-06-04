@@ -58,6 +58,15 @@ public class ToastHelper
 						//R.layout.blur_test
 						context.getResources().getIdentifier("blur_test", "layout", context.getPackageName())
 					);
+					Bitmap map = ProcessBlur.takeScreenShot((Activity)context);
+
+					Bitmap fast = ProcessBlur.fastblur(map, 50);
+					final Drawable blurDraw = new BitmapDrawable(context.getResources(), fast);
+			
+					dlg.getWindow().setBackgroundDrawable(
+							blurDraw
+					);
+			
 					dlg.setCancelable(false);
 					dlg.show();
 
